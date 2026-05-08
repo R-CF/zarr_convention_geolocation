@@ -10,3 +10,8 @@ Thumbs.db
 .npm
 /node_modules/
 package-lock.json
+.Rproj.user
+.positai
+zarr_convention_geolocation.Rproj
+README.html
+.Rhistory
