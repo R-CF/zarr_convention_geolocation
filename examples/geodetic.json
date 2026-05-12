@@ -1,0 +1,27 @@
+{
+  "zarr_format": 3,
+  "node_type": "array",
+  "shape": [8605, 180, 288],
+  "dimension_names": ["time", "y", "x"],
+  "attributes": {
+    "zarr_conventions": [
+      {
+        "schema_url": "https://raw.githubusercontent.com/R-CF/zarr_convention_geolocation/main/schema.json",
+        "name": "geolocation"
+      }
+    ],
+    "geolocation": {
+      "geodetic": {
+        "x": {
+          "node": "../geolocation/longitude"
+        },
+        "y": {
+          "node": "../geolocation/latitude"
+        },
+        "id": {
+          "proj:code": "EPSG:4326"
+        }
+      }
+    }
+  }
+}

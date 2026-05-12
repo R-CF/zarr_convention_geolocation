@@ -16,7 +16,7 @@ Examples of the use of geolocation arrays in gridded products are:
 
 - **MODIS satellite imagery**: MODIS level-1 images are distributed in so-called 5-minute swaths: sensor line and path observations over 5 minutes of time, using an instrument pixel indexing scheme. The MODIS Geolocation product (MOD03) contains geodetic coordinates and various other variables for the center of each 1-km pixel at nadir.
 - **VIIRS (Suomi NPP / NOAA-20)**: Similar to the MODIS approach, VIIRS uses separate geolocation products (VNP03MOD) per resolution tier.
-- **Sentinel-3 OLCI**: In the SAFE format, the Sentinel-3 EO L1B Product package includes files `geo_coordinates.nc` with `latitude` and `longitude` variables that hold the geolocation arrays for the radiance variables. A down-scaled version of the geolocation arrays is provided in the `tie_geo_coordinates.nc` file of the package. In the newer EOPF format based on Zarr, the `/measurements` top-level group contains `latitude` and `longitude` arrays with the geolocation data for those arrays that do not define their own coordinate system through coordinate variables.
+- **Sentinel-3 OLCI**: In the **SAFE format**, the Sentinel-3 EO L1B Product package includes files `geo_coordinates.nc` with `latitude` and `longitude` variables that hold the geolocation arrays for the radiance variables. A down-scaled version of the geolocation arrays is provided in the `tie_geo_coordinates.nc` file of the package. In the newer **EOPF format** for level-1 and level-2 data based on Zarr, the top-level groups contain `latitude` and `longitude` and/or `x` and `y` arrays with the geolocation data for those arrays, in geodetic latitude and longitude or projected coordinates, respectively, as the arrays do not define their own coordinate system through coordinate variables.
 - **CORDEX**: The regionally down-scaled climate projection data from CORDEX uses a "rotated pole" coordinate system for which there are no standard coordinate reference systems. Data is stored in netCDF format using the CF Metadata Conventions, which provides for storage of geolocation arrays alongside the scientific data variable (see below).
 - **Ocean modeling data**: Ocean modeling data (e.g. ROMS) commonly uses a tailor-made tripolar grid, placing two "north" poles over North American and Asian landmasses to avoid numerical singularities when modeling mass fluxes at or near the North Pole. As with CORDEX data, the netCDF format is used for data storage with geolocation arrays stored in the same file.
 
@@ -55,19 +55,42 @@ This convention can be used with these parts of the Zarr hierarchy:
 
 ## Properties
 
-This convention uses a single property. The property may be placed as appropriate, following the pattern of the `spatial:` or `cs` convention that is used to provide the coordinates of the object.
+This convention groups all fields nested in a single property. The property may be placed as appropriate, following the pattern of the `spatial:` or `cs` convention that is used to provide the coordinates of the object.
 
-| Field Name  | Type  | Description                       |
-| ----------- | ----- | --------------------------------- |
-| geolocation | [ref] | Mandatory. Array of `ref` objects |
+| Field Name  | Type   | Description                               | Required |
+| ----------- | ------ | ----------------------------------------- | -------- |
+| geolocation | [Geolocation object](#geolocation-object) | The geolocation object | Yes |
 
-### geolocation
-The `geolocation` field is a JSON array of [ref](https://github.com/R-CF/zarr_convention_ref) objects, with each element of the array indicating a Zarr array that provides the geolocation data for a coordinate in the Zarr array shape. Typically, only the `node` field of the `ref` object will be used, but the `uri` field may be used to identify an external Zarr store that provides the geolocation arrays.
+### Geolocation object
 
-The order of the elements in the JSON array is significant: it must be the same as in the object that this object is associated with:
+The geolocation object contains references to geodetic and/or planar coordinate values in some coordinate system. At least one of the two MUST be given.
 
-- **`spatial:`**: The order in the array must follow the order in the `spatial:dimensions` field. The field should be placed at the same level as the `spatial:dimensions` field, which is usually the top-level under `attributes`.
-- **`cs`**: The order in the array must follow the order in the `crs` object. Effectively, the `crs` object must describe a 2D or 3D geospatial CRS (and not a vertical or temporal CRS). The `geolocation` field is an object of the `crs` field of the `cs` convention.
+| Field Name | Type         | Description                     | Required    |
+| ---------- | ------------ | ------------------------------- | ----------- |
+| geodetic   | [Arrays object](#arrays-object) | Object for geodetic geolocation | Conditional |
+| planar     | [Arrays object](#arrays-object) | Object for planar geolocation   | Conditional |
+
+#### geodetic
+This field contains an object holding two geolocation arrays giving geodetic coordinates.
+
+#### planar
+This field contains an object holding two geolocation arrays giving planar coordinates.
+
+### Arrays object
+
+| Field Name | Type         | Description                         | Required |
+| ---------- | ------------ | ----------------------------------- | -------- |
+| x          | ref object   | Reference to an array of x values   | Yes      |
+| y          | ref object   | Reference to an array of y values   | Yes      |
+| id         | proj: object | Identifier of the CRS of the values | No       |
+
+#### x / y
+The `x` and `y` fields are [ref](https://github.com/R-CF/zarr_convention_ref) objects, referencing an array providing the X (west-east) axis coordinates and the the Y (south-north) axis coordinates, respectively. When the key to the object is `"geodetic"`, the `x` and `y` arrays represent longitude and latitude values, respectively. For the `"planar"` case, the values are formally identified by the properties of the `"id"` field, usually planar `x` and `y` values in a coordinate reference system.
+
+Typically, only the `node` field of the `ref` object will be used for an in-store reference, but the `uri` field may be used to identify an external Zarr store that provides the geolocation array.
+
+#### id
+The unique identifier of the CRS, encoded using the [`proj:` convention](https://github.com/zarr-conventions/geo-proj). This field SHOULD be included if a coordinate reference system identifier describing the data in the geolocation arrays is known.
 
 ##Examples
 

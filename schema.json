@@ -28,7 +28,7 @@
           "$ref": "#/defs/geolocation"
         }
       },
-      "required": ["zarr_conventions"]
+      "required": ["zarr_conventions", "geolocation"]
     }
   },
   "required": ["zarr_format", "node_type", "attributes"],
@@ -77,10 +77,40 @@
       "additionalProperties": false
     },
     "geolocation": {
-      "type": "array",
-      "items": {
-        "$ref": "https://raw.githubusercontent.com/R-CF/zarr_convention_ref/main/schema.json#/$defs/ref"
-      }
+      "type": "object",
+      "properties": {
+        "geodetic": {
+          "#$ref": "#/defs/arrays"
+        },
+        "planar": {
+          "#$ref": "#/defs/arrays"
+        }
+      },
+      "anyOf": [
+        {
+          "required": ["geodetic"]
+        },
+        {
+          "required": ["planar"]
+        }
+      ],
+      "additionalProperties": false
+    },
+    "arrays": {
+      "type": "object",
+      "properties": {
+        "x": {
+          "$ref": "https://raw.githubusercontent.com/R-CF/zarr_convention_ref/main/schema.json#/$defs/ref"
+        }
+        "y": {
+          "$ref": "https://raw.githubusercontent.com/R-CF/zarr_convention_ref/main/schema.json#/$defs/ref"
+        }
+        "id": {
+          "$ref": "https://raw.githubusercontent.com/zarr-conventions/geo-proj/main/schema.json#/$defs/projAttributes"
+        }
+      },
+      "required": ["x", "y"],
+      "additionalProperties": false
     }
   }
 }
