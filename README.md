@@ -20,7 +20,7 @@ Examples of the use of geolocation arrays in gridded products are:
 - **CORDEX**: The regionally down-scaled climate projection data from CORDEX uses a "rotated pole" coordinate system for which there are no standard coordinate reference systems. Data is stored in netCDF format using the CF Metadata Conventions, which provides for storage of geolocation arrays alongside the scientific data variable (see below).
 - **Ocean modeling data**: Ocean modeling data (e.g. ROMS) commonly uses a tailor-made tripolar grid, placing two "north" poles over North American and Asian landmasses to avoid numerical singularities when modeling mass fluxes at or near the North Pole. As with CORDEX data, the netCDF format is used for data storage with geolocation arrays stored in the same file.
 
-The CF Metadata Conventions define a convention for storing geolocation arrays in netCDF files. For scientific data variables with a "horizontal grid that was not defined as a Cartesian product of latitude and longitude axes" the conventions are ["using two-dimensional coordinate variables" of latitude and longitude](https://cfconventions.org/cf-conventions/cf-conventions.html#_two_dimensional_latitude_longitude_coordinate_variables). This convention applies a similar construct to store geolocation data as Zarr arrays.
+The CF Metadata Conventions define a convention for storing geolocation data in netCDF files. For scientific data variables with a "horizontal grid that was not defined as a Cartesian product of latitude and longitude axes" the conventions are ["using two-dimensional coordinate variables" of latitude and longitude](https://cfconventions.org/cf-conventions/cf-conventions.html#_two_dimensional_latitude_longitude_coordinate_variables). This convention applies a similar construct to store geolocation data as Zarr arrays.
 
 In the GeoZarr ecosystem, this convention can be used as a complement to the [`spatial:`](https://github.com/zarr-conventions/spatial) and [`cs`](https://github.com/R-CF/zarr_conventions_cs) conventions to provide geolocation information where a simple coordinate system is not provided for the Zarr array.
 
@@ -82,17 +82,106 @@ This field contains an object holding two geolocation arrays giving planar coord
 | ---------- | ------------ | ----------------------------------- | -------- |
 | x          | ref object   | Reference to an array of x values   | Yes      |
 | y          | ref object   | Reference to an array of y values   | Yes      |
-| id         | proj: object | Identifier of the CRS of the values | No       |
+| crs        | proj: object | CRS description of the values       | No       |
 
 #### x / y
 The `x` and `y` fields are [ref](https://github.com/R-CF/zarr_convention_ref) objects, referencing an array providing the X (west-east) axis coordinates and the the Y (south-north) axis coordinates, respectively. When the key to the object is `"geodetic"`, the `x` and `y` arrays represent longitude and latitude values, respectively. For the `"planar"` case, the values are formally identified by the properties of the `"id"` field, usually planar `x` and `y` values in a coordinate reference system.
 
 Typically, only the `node` field of the `ref` object will be used for an in-store reference, but the `uri` field may be used to identify an external Zarr store that provides the geolocation array.
 
-#### id
-The unique identifier of the CRS, encoded using the [`proj:` convention](https://github.com/zarr-conventions/geo-proj). This field SHOULD be included if a coordinate reference system identifier describing the data in the geolocation arrays is known.
+#### crs
+The description of the CRS, encoded using the [`proj:` convention](https://github.com/zarr-conventions/geo-proj). This field SHOULD be included if a coordinate reference system identifier describing the data in the geolocation arrays is known.
 
-##Examples
+The field must describe a coordinate reference system that agrees with the `"x"` and `"y"` arrays. If the arrays are geodetic, the field must describe a geodetic coordinate reference system; for planar coordinates, the coordinate reference system may be derived, projected, or engineering.
+
+## Examples
+**Example 1: Geodetic geolocation arrays in the same group as the array**
+```
+{
+  "zarr_format": 3,
+  "node_type": "array",
+  "shape": [8605, 180, 288],
+  "dimension_names": ["time", "y", "x"],
+  "attributes": {
+    "zarr_conventions": [
+      {
+        "schema_url": "https://raw.githubusercontent.com/R-CF/zarr_convention_geolocation/main/schema.json",
+        "name": "geolocation"
+      },
+      {
+        "schema_url": "https://raw.githubusercontent.com/R-CF/zarr_convention_ref/main/schema.json",
+        "name": "ref"
+      },
+      {
+        "schema_url": "https://raw.githubusercontent.com/zarr-conventions/geo-proj/main/schema.json",
+        "name": "proj:"
+      }
+    ],
+    "geolocation": {
+      "geodetic": {
+        "x": {
+          "node": "longitude"
+        },
+        "y": {
+          "node": "latitude"
+        },
+        "id": {
+          "proj:code": "EPSG:4326"
+        }
+      }
+    }
+  }
+}
+```
+**Example 2: Geodetic and planar geolocation arrays, in different groups referenced relative to the group of this array**
+```
+{
+  "zarr_format": 3,
+  "node_type": "array",
+  "shape": [8605, 180, 288],
+  "dimension_names": ["time", "y", "x"],
+  "attributes": {
+    "zarr_conventions": [
+      {
+        "schema_url": "https://raw.githubusercontent.com/R-CF/zarr_convention_geolocation/main/schema.json",
+        "name": "geolocation"
+      },
+      {
+        "schema_url": "https://raw.githubusercontent.com/R-CF/zarr_convention_ref/main/schema.json",
+        "name": "ref"
+      },
+      {
+        "schema_url": "https://raw.githubusercontent.com/zarr-conventions/geo-proj/main/schema.json",
+        "name": "proj:"
+      }
+    ],
+    "geolocation": {
+      "geodetic": {
+        "x": {
+          "node": "../geolocation/geodetic/longitude"
+        },
+        "y": {
+          "node": "../geolocation/geodetic/latitude"
+        },
+        "id": {
+          "proj:code": "EPSG:4326"
+        }
+      },
+      "planar": {
+        "x": {
+          "node": "../geolocation/UTM28N/easting"
+        },
+        "y": {
+          "node": "../geolocation/UTM28N/northing"
+        },
+        "id": {
+          "proj:code": "EPSG:25828"
+        }
+      }
+    }
+  }
+}
+```
 
 ## Known Implementations
 

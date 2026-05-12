@@ -21,13 +21,24 @@
     "geolocation": {
       "geodetic": {
         "x": {
-          "node": "longitude"
+          "node": "../geolocation/geodetic/longitude"
         },
         "y": {
-          "node": "latitude"
+          "node": "../geolocation/geodetic/latitude"
         },
         "id": {
           "proj:code": "EPSG:4326"
+        }
+      },
+      "planar": {
+        "x": {
+          "node": "../geolocation/UTM28N/easting"
+        },
+        "y": {
+          "node": "../geolocation/UTM28N/northing"
+        },
+        "id": {
+          "proj:code": "EPSG:25828"
         }
       }
     }
