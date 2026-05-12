@@ -26,7 +26,7 @@
         "y": {
           "node": "../geolocation/geodetic/latitude"
         },
-        "id": {
+        "crs": {
           "proj:code": "EPSG:4326"
         }
       },
@@ -37,7 +37,7 @@
         "y": {
           "node": "../geolocation/UTM28N/northing"
         },
-        "id": {
+        "crs": {
           "proj:code": "EPSG:25828"
         }
       }

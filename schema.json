@@ -105,7 +105,7 @@
         "y": {
           "$ref": "https://raw.githubusercontent.com/R-CF/zarr_convention_ref/main/schema.json#/$defs/ref"
         },
-        "id": {
+        "crs": {
           "$ref": "https://raw.githubusercontent.com/zarr-conventions/geo-proj/main/schema.json#/$defs/projAttributes"
         }
       },
