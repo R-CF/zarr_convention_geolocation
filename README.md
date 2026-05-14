@@ -114,7 +114,7 @@ The field must describe a coordinate reference system that agrees with the `"x"`
       },
       {
         "schema_url": "https://raw.githubusercontent.com/zarr-conventions/geo-proj/main/schema.json",
-        "name": "proj:"
+        "name": "proj"
       }
     ],
     "geolocation": {
@@ -152,7 +152,7 @@ The field must describe a coordinate reference system that agrees with the `"x"`
       },
       {
         "schema_url": "https://raw.githubusercontent.com/zarr-conventions/geo-proj/main/schema.json",
-        "name": "proj:"
+        "name": "proj"
       }
     ],
     "geolocation": {
