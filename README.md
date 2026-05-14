@@ -22,7 +22,7 @@ Examples of the use of geolocation arrays in gridded products are:
 
 The CF Metadata Conventions define a convention for storing geolocation data in netCDF files. For scientific data variables with a "horizontal grid that was not defined as a Cartesian product of latitude and longitude axes" the conventions are ["using two-dimensional coordinate variables" of latitude and longitude](https://cfconventions.org/cf-conventions/cf-conventions.html#_two_dimensional_latitude_longitude_coordinate_variables). This convention applies a similar construct to store geolocation data as Zarr arrays.
 
-In the GeoZarr ecosystem, this convention can be used as a complement to the [`spatial:`](https://github.com/zarr-conventions/spatial) and [`cs`](https://github.com/R-CF/zarr_conventions_cs) conventions to provide geolocation information where a simple coordinate system is not provided for the Zarr array.
+In the GeoZarr ecosystem, this convention can be used as a complement to the [`spatial`](https://github.com/zarr-conventions/spatial) and [`cs`](https://github.com/R-CF/zarr_conventions_cs) conventions to provide geolocation information where a simple coordinate system is not provided for the Zarr array.
 
 ## Motivation
 
@@ -78,11 +78,11 @@ This field contains an object holding two geolocation arrays giving planar coord
 
 ### Arrays object
 
-| Field Name | Type         | Description                         | Required |
-| ---------- | ------------ | ----------------------------------- | -------- |
-| x          | ref object   | Reference to an array of x values   | Yes      |
-| y          | ref object   | Reference to an array of y values   | Yes      |
-| crs        | proj: object | CRS description of the values       | No       |
+| Field Name | Type        | Description                         | Required |
+| ---------- | ----------- | ----------------------------------- | -------- |
+| x          | ref object  | Reference to an array of x values   | Yes      |
+| y          | ref object  | Reference to an array of y values   | Yes      |
+| crs        | proj object | CRS description of the values       | No       |
 
 #### x / y
 The `x` and `y` fields are [ref](https://github.com/R-CF/zarr_convention_ref) objects, referencing an array providing the X (west-east) axis coordinates and the the Y (south-north) axis coordinates, respectively. When the key to the object is `"geodetic"`, the `x` and `y` arrays represent longitude and latitude values, respectively. For the `"planar"` case, the values are formally identified by the properties of the `"id"` field, usually planar `x` and `y` values in a coordinate reference system.
@@ -90,7 +90,7 @@ The `x` and `y` fields are [ref](https://github.com/R-CF/zarr_convention_ref) ob
 Typically, only the `node` field of the `ref` object will be used for an in-store reference, but the `uri` field may be used to identify an external Zarr store that provides the geolocation array.
 
 #### crs
-The description of the CRS, encoded using the [`proj:` convention](https://github.com/zarr-conventions/geo-proj). This field SHOULD be included if a coordinate reference system identifier describing the data in the geolocation arrays is known.
+The description of the CRS, encoded using the [`proj` convention](https://github.com/zarr-conventions/geo-proj). This field SHOULD be included if a coordinate reference system identifier describing the data in the geolocation arrays is known.
 
 The field must describe a coordinate reference system that agrees with the `"x"` and `"y"` arrays. If the arrays are geodetic, the field must describe a geodetic coordinate reference system; for planar coordinates, the coordinate reference system may be derived, projected, or engineering.
 
