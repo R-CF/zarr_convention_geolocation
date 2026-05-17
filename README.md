@@ -14,13 +14,15 @@ Some geospatial data sets do not have a simple coordinate reference system. A ty
 
 Examples of the use of geolocation arrays in gridded products are:
 
-- **MODIS satellite imagery**: MODIS level-1 images are distributed in so-called 5-minute swaths: sensor line and path observations over 5 minutes of time, using an instrument pixel indexing scheme. The MODIS Geolocation product (MOD03) contains geodetic coordinates and various other variables for the center of each 1-km pixel at nadir.
+- **MODIS satellite imagery**: MODIS level-1 images are distributed in so-called 5-minute swaths: sensor line and path observations over 5 minutes of time, using an instrument pixel indexing scheme. The MODIS Geolocation product (MOD03) contains geodetic coordinates (and various other variables) for the center of each 1-km pixel at nadir.
 - **VIIRS (Suomi NPP / NOAA-20)**: Similar to the MODIS approach, VIIRS uses separate geolocation products (VNP03MOD) per resolution tier.
 - **Sentinel-3 OLCI**: In the **SAFE format**, the Sentinel-3 EO L1B Product package includes files `geo_coordinates.nc` with `latitude` and `longitude` variables that hold the geolocation arrays for the radiance variables. A down-scaled version of the geolocation arrays is provided in the `tie_geo_coordinates.nc` file of the package. In the newer **EOPF format** for level-1 and level-2 data based on Zarr, the top-level groups contain `latitude` and `longitude` and/or `x` and `y` arrays with the geolocation data for those arrays, in geodetic latitude and longitude or projected coordinates, respectively, as the arrays do not define their own coordinate system through coordinate variables.
 - **CORDEX**: The regionally down-scaled climate projection data from CORDEX uses a "rotated pole" coordinate system for which there are no standard coordinate reference systems. Data is stored in netCDF format using the CF Metadata Conventions, which provides for storage of geolocation arrays alongside the scientific data variable (see below).
 - **Ocean modeling data**: Ocean modeling data (e.g. ROMS) commonly uses a tailor-made tripolar grid, placing two "north" poles over North American and Asian landmasses to avoid numerical singularities when modeling mass fluxes at or near the North Pole. As with CORDEX data, the netCDF format is used for data storage with geolocation arrays stored in the same file.
 
 The CF Metadata Conventions define a convention for storing geolocation data in netCDF files. For scientific data variables with a "horizontal grid that was not defined as a Cartesian product of latitude and longitude axes" the conventions are ["using two-dimensional coordinate variables" of latitude and longitude](https://cfconventions.org/cf-conventions/cf-conventions.html#_two_dimensional_latitude_longitude_coordinate_variables). This convention applies a similar construct to store geolocation data as Zarr arrays.
+
+The `geolocation` object describes a mapping from the coordinate system of the current CRS of the Zarr array into a geodetic or planar CRS, expressed as arrays of geographic or planar coordinates, respectively, for each element of the Zarr array. The current CRS need not itself be geodetic; the geolocation arrays provide the derived geodetic or planar coordinates that allow tools to locate array elements on Earth without requiring knowledge of the source coordinate system.
 
 In the GeoZarr ecosystem, this convention can be used as a complement to the [`spatial`](https://github.com/zarr-conventions/spatial) and [`cs`](https://github.com/R-CF/zarr_conventions_cs) conventions to provide geolocation information where a simple coordinate system is not provided for the Zarr array.
 
@@ -55,7 +57,7 @@ This convention can be used with these parts of the Zarr hierarchy:
 
 ## Properties
 
-This convention groups all fields nested in a single property. The property may be placed as appropriate, following the pattern of the `spatial:` or `cs` convention that is used to provide the coordinates of the object.
+This convention groups all fields nested in a single property. The property may be placed as appropriate, following the pattern of the `spatial` or `cs` convention that is used to provide the coordinates of the object.
 
 | Field Name  | Type   | Description                               | Required |
 | ----------- | ------ | ----------------------------------------- | -------- |
