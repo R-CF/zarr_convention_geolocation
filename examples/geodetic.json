@@ -6,27 +6,31 @@
   "attributes": {
     "zarr_conventions": [
       {
-        "schema_url": "https://raw.githubusercontent.com/R-CF/zarr_convention_geolocation/main/schema.json",
+        "schema_url": "https://raw.githubusercontent.com/R-CF/zarr_convention_geolocation/refs/tags/v1.0.0/schema.json",
         "name": "geolocation"
       },
       {
-        "schema_url": "https://raw.githubusercontent.com/R-CF/zarr_convention_ref/main/schema.json",
+        "schema_url": "https://raw.githubusercontent.com/R-CF/zarr_convention_ref/refs/tags/v2.0.0/schema.json",
         "name": "ref"
       },
       {
-        "schema_url": "https://raw.githubusercontent.com/zarr-conventions/geo-proj/main/schema.json",
+        "schema_url": "https://raw.githubusercontent.com/zarr-conventions/proj/refs/tags/v0.1/schema.json",
         "name": "proj"
       }
     ],
     "geolocation": {
       "geodetic": {
         "x": {
-          "node": "longitude"
+          "ref": {
+            "node": "../longitude"
+          }
         },
         "y": {
-          "node": "latitude"
+          "ref": {
+            "node": "../latitude"
+          }
         },
-        "crs": {
+        "id": {
           "proj:code": "EPSG:4326"
         }
       }
