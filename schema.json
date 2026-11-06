@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raw.githubusercontent.com/R-CF/zarr_convention_geolocation/refs/tags/v1.0.0/schema.json",
+  "$id": "https://raw.githubusercontent.com/R-CF/zarr_convention_geolocation/refs/tags/v1.1.0/schema.json",
   "title": "Geolocation Convention",
   "description": "Schema for the geolocation Zarr convention",
   "type": "object",

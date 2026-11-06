@@ -1,5 +1,4 @@
 import Ajv2020 from "ajv/dist/2020.js";
-import Ajv from "ajv";  // draft-07 for proj:
 import fs from "fs";
 
 // Read command line arguments
@@ -12,16 +11,15 @@ if (!schemaPath || !dataPath) {
 }
 
 const ajv = new Ajv2020({ allErrors: true });
-const ajv7 = new Ajv({ allErrors: true });
 
-// Load proj: with the draft-07 instance
-const proj = await fetch("https://raw.githubusercontent.com/zarr-conventions/geo-proj/main/schema.json")
+// The proj: schema is draft-07. Ajv resolves $ref only within one instance, so
+// it is relabelled as 2020-12 and added to the single instance below
+const proj = await fetch("https://raw.githubusercontent.com/zarr-conventions/proj/refs/tags/v0.1/schema.json")
   .then(r => r.json());
-ajv7.addSchema(proj);
 
 // Fetch and add external schemas by their URL
 const externalSchemas = [
-  "https://raw.githubusercontent.com/R-CF/zarr_convention_ref/main/schema.json"
+  "https://raw.githubusercontent.com/R-CF/zarr_convention_ref/refs/tags/v2.0.0/schema.json"
 ];
 
 for (const url of externalSchemas) {
@@ -30,11 +28,12 @@ for (const url of externalSchemas) {
   ajv.addSchema(schema, url);
 }
 
-// Add proj: to the 2020 instance for $ref resolution,
-// Suppressing the $schema field so Ajv2020 doesn't choke on "draft-07"
+// Relabelling is sound only because #/$defs/projAttributes, the part referenced
+// from schema.json, uses no keywords whose meaning changed after draft-07
+// (array-form "items", "additionalItems", "dependencies", siblings of "$ref").
+// Re-check this when moving to a new proj: version.
 const projCompat = { ...proj, $schema: "https://json-schema.org/draft/2020-12/schema" };
 ajv.addSchema(projCompat);
-ajv.addSchema(projCompat, "https://raw.githubusercontent.com/zarr-conventions/geo-proj/main/schema.json");
 
 // PROJJSON schema is also in draft-07. Local copy made and converted to 2020-12
 const projJson = JSON.parse(fs.readFileSync("projjson.schema.json", "utf8"));

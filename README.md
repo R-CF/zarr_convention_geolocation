@@ -2,8 +2,8 @@
 
 - **UUID**: bb9ee930-8c60-4c47-ad6b-8daa558987ed
 - **Name**: geolocation
-- **Schema URL**: "https://raw.githubusercontent.com/R-CF/zarr_convention_geolocation/refs/tags/v1.0.0/schema.json"
-- **Spec URL**: "https://github.com/R-CF/zarr_convention_geolocation/blob/v1.0.0/README.md"
+- **Schema URL**: "https://raw.githubusercontent.com/R-CF/zarr_convention_geolocation/refs/tags/v1.1.0/schema.json"
+- **Spec URL**: "https://github.com/R-CF/zarr_convention_geolocation/blob/v1.1.0/README.md"
 - **Scope**: Array, Group
 - **Extension Maturity Classification**: Pilot
 - **Owner**: @pvanlaake
@@ -38,8 +38,8 @@ The convention must be registered in `zarr_conventions`:
 {
   "zarr_conventions": [
     {
-      "schema_url": "https://raw.githubusercontent.com/R-CF/zarr_convention_geolocation/refs/tags/v1.0.0/schema.json",
-      "spec_url": "https://github.com/R-CF/zarr_convention_geolocation/blob/v1.0.0/README.md",
+      "schema_url": "https://raw.githubusercontent.com/R-CF/zarr_convention_geolocation/refs/tags/v1.1.0/schema.json",
+      "spec_url": "https://github.com/R-CF/zarr_convention_geolocation/blob/v1.1.0/README.md",
       "uuid": "bb9ee930-8c60-4c47-ad6b-8daa558987ed",
       "name": "geolocation",
       "description": "Convention for storing geolocation arrays"
@@ -58,6 +58,8 @@ This convention can be used with these parts of the Zarr hierarchy:
 ## Properties
 
 This convention groups all fields nested in a single property. The property may be placed as appropriate, following the pattern of the convention that is used to provide the coordinates of the object. For the `spatial` convention the `geolocation` field will be located at the top-level, alongside the `spatial:` attributes; for the `cs` convention, the `geolocation` field is nested inside its structure.
+
+This convention MUST be used together with a principal convention that identifies the `X` and `Y` dimensions of the array, such as `spatial` or `cs`.
 
 | Field Name  | Type   | Description                               | Required |
 | ----------- | ------ | ----------------------------------------- | -------- |
@@ -89,16 +91,20 @@ This field contains an object holding two geolocation arrays giving planar coord
 #### x / y
 The `x` and `y` fields are [ref](https://github.com/R-CF/zarr_convention_ref/blob/v2.0.0/README.md) objects, referencing an array providing the X (west-east) axis coordinates and the Y (south-north) axis coordinates, respectively. When the key to the object is `geodetic`, the `x` and `y` arrays represent longitude and latitude values, respectively. For the `planar` case, the values are formally identified by the properties of the `id` field, usually planar `x` and `y` values in a coordinate reference system.
 
+The geolocation arrays referenced in the `x` and `y` fields MUST have `dimension_names` in their metadata. Geolocation arrays are matched to the referring array by dimension name: the names of the `X` and `Y` dimensions of the referring array, as identified by the principal convention (`spatial:dimensions` for the `spatial` convention, the axes with abbreviation `X` and `Y` for the `cs` convention), MUST both appear in the `dimension_names` of each geolocation array, and the lengths along those dimensions MUST be equal. The order of the dimensions in a geolocation array need not be the same as in the referring array. Additional dimensions in the geolocation arrays are NOT RECOMMENDED; any additional dimension MUST also appear in the `dimension_names` of the referring array, with equal length.
+
 Typically, only the `node` field of the `ref` object will be used for an in-store reference, but the `uri` field may be used to identify an external Zarr store that provides the geolocation array.
 
 #### id
 The description of the CRS, encoded using the [`proj` convention](https://github.com/zarr-conventions/proj/blob/v0.1/README.md). This field SHOULD be included if a coordinate reference system identifier describing the data in the geolocation arrays is known.
 
-The field must reference or describe a coordinate reference system that agrees with the `x` and `y` arrays. If the arrays are geodetic, the field must describe a geodetic coordinate reference system; for planar coordinates, the coordinate reference system may be derived, projected, or engineering.
+The field MUST reference or describe a coordinate reference system that agrees with the `x` and `y` arrays. If the arrays are geodetic, the field MUST describe a geodetic coordinate reference system; for planar coordinates, the coordinate reference system may be derived, projected, or engineering.
 
 ## Examples
+For brevity, the examples omit the principal convention (`spatial` or `cs`) that identifies the `X` and `Y` dimensions of the array.
+
 **Example 1: Geodetic geolocation arrays in the same group as the array**
-```
+```json
 {
   "zarr_format": 3,
   "node_type": "array",
@@ -107,7 +113,7 @@ The field must reference or describe a coordinate reference system that agrees w
   "attributes": {
     "zarr_conventions": [
       {
-        "schema_url": "https://raw.githubusercontent.com/R-CF/zarr_convention_geolocation/refs/tags/v1.0.0/schema.json",
+        "schema_url": "https://raw.githubusercontent.com/R-CF/zarr_convention_geolocation/refs/tags/v1.1.0/schema.json",
         "name": "geolocation"
       },
       {
@@ -140,7 +146,7 @@ The field must reference or describe a coordinate reference system that agrees w
 }
 ```
 **Example 2: Geodetic and planar geolocation arrays, in different groups referenced relative to this array**
-```
+```json
 {
   "zarr_format": 3,
   "node_type": "array",
@@ -149,7 +155,7 @@ The field must reference or describe a coordinate reference system that agrees w
   "attributes": {
     "zarr_conventions": [
       {
-        "schema_url": "https://raw.githubusercontent.com/R-CF/zarr_convention_geolocation/refs/tags/v1.0.0/schema.json",
+        "schema_url": "https://raw.githubusercontent.com/R-CF/zarr_convention_geolocation/refs/tags/v1.1.0/schema.json",
         "name": "geolocation"
       },
       {
@@ -211,6 +217,11 @@ The field must reference or describe a coordinate reference system that agrees w
   - Status: Released
   - Maintainer: @pvanlaake
   - Since: 2026-06-15
+- **[geozarr](https://cran.r-project.org/package=geozarr)** - R package with a driver for GeoZarr and its conventions
+  - Language: R
+  - Status: Published on CRAN
+  - Maintainer: @pvanlaake
+  - Since: 2026-11-06
 
 _If you implement or use this convention, please add your implementation to this list by submitting a pull request._
 
