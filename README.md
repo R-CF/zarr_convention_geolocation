@@ -61,6 +61,8 @@ This convention groups all fields nested in a single property. The property may 
 
 This convention MUST be used together with a principal convention that identifies the `X` and `Y` dimensions of the array, such as `spatial` or `cs`.
 
+With the `cs` convention, the `geolocation` field may be part of a `crs` object that is defined in a group, so that it may be shared by multiple arrays. This convention MUST then be registered in that group, and the `ref` objects in the `x` and `y` fields are resolved relative to that group, as for any reference in a `crs` object defined in a group.
+
 | Field Name  | Type   | Description                               | Required |
 | ----------- | ------ | ----------------------------------------- | -------- |
 | geolocation | [Geolocation object](#geolocation-object) | The geolocation object | No |
@@ -91,7 +93,7 @@ This field contains an object holding two geolocation arrays giving planar coord
 #### x / y
 The `x` and `y` fields are [ref](https://github.com/R-CF/zarr_convention_ref/blob/v2.0.0/README.md) objects, referencing an array providing the X (west-east) axis coordinates and the Y (south-north) axis coordinates, respectively. When the key to the object is `geodetic`, the `x` and `y` arrays represent longitude and latitude values, respectively. For the `planar` case, the values are formally identified by the properties of the `id` field, usually planar `x` and `y` values in a coordinate reference system.
 
-The geolocation arrays referenced in the `x` and `y` fields MUST have `dimension_names` in their metadata. Geolocation arrays are matched to the referring array by dimension name: the names of the `X` and `Y` dimensions of the referring array, as identified by the principal convention (`spatial:dimensions` for the `spatial` convention, the axes with abbreviation `X` and `Y` for the `cs` convention), MUST both appear in the `dimension_names` of each geolocation array, and the lengths along those dimensions MUST be equal. The order of the dimensions in a geolocation array need not be the same as in the referring array. Additional dimensions in the geolocation arrays are NOT RECOMMENDED; any additional dimension MUST also appear in the `dimension_names` of the referring array, with equal length.
+The geolocation arrays referenced in the `x` and `y` fields MUST have `dimension_names` in their metadata. Geolocation arrays are matched to the referring array (i.e. the array that uses these geolocation arrays to associate coordinates with its elements) by dimension name: the names of the `X` and `Y` dimensions of the referring array, as identified by the principal convention (`spatial:dimensions` for the `spatial` convention, the axes with abbreviation `X` and `Y` for the `cs` convention), MUST both appear in the `dimension_names` of each geolocation array, and the lengths along those dimensions MUST be equal. The order of the dimensions in a geolocation array need not be the same as in the referring array. Additional dimensions in the geolocation arrays are NOT RECOMMENDED; any additional dimension MUST also appear in the `dimension_names` of the referring array, with equal length.
 
 Typically, only the `node` field of the `ref` object will be used for an in-store reference, but the `uri` field may be used to identify an external Zarr store that provides the geolocation array.
 
