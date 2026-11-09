@@ -1,12 +1,20 @@
 {
   "zarr_format": 3,
   "node_type": "array",
-  "shape": [8605, 180, 288],
-  "dimension_names": ["time", "y", "x"],
+  "shape": [
+    8605,
+    180,
+    288
+  ],
+  "dimension_names": [
+    "time",
+    "y",
+    "x"
+  ],
   "attributes": {
     "zarr_conventions": [
       {
-        "schema_url": "https://raw.githubusercontent.com/R-CF/zarr_convention_geolocation/refs/tags/v1.1.0/schema.json",
+        "schema_url": "https://raw.githubusercontent.com/R-CF/zarr_convention_geolocation/refs/tags/v2.0.0/schema.json",
         "name": "geolocation"
       },
       {
@@ -21,13 +29,27 @@
     "geolocation": {
       "geodetic": {
         "x": {
-          "ref": {
-            "node": "../longitude"
+          "values": {
+            "ref": {
+              "node": "../longitude"
+            }
+          },
+          "boundaries": {
+            "ref": {
+              "node": "../longitude_bnds"
+            }
           }
         },
         "y": {
-          "ref": {
-            "node": "../latitude"
+          "values": {
+            "ref": {
+              "node": "../latitude"
+            }
+          },
+          "boundaries": {
+            "ref": {
+              "node": "../latitude_bnds"
+            }
           }
         },
         "id": {

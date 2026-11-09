@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raw.githubusercontent.com/R-CF/zarr_convention_geolocation/refs/tags/v1.1.0/schema.json",
+  "$id": "https://raw.githubusercontent.com/R-CF/zarr_convention_geolocation/refs/tags/v2.0.0/schema.json",
   "title": "Geolocation Convention",
   "description": "Schema for the geolocation Zarr convention",
   "type": "object",
@@ -11,7 +11,10 @@
     },
     "node_type": {
       "type": "string",
-      "enum": ["array", "group"],
+      "enum": [
+        "array",
+        "group"
+      ],
       "description": "Type of Zarr node"
     },
     "attributes": {
@@ -29,10 +32,16 @@
           "$ref": "#/$defs/geolocation"
         }
       },
-      "required": ["zarr_conventions"]
+      "required": [
+        "zarr_conventions"
+      ]
     }
   },
-  "required": ["zarr_format", "node_type", "attributes"],
+  "required": [
+    "zarr_format",
+    "node_type",
+    "attributes"
+  ],
   "additionalProperties": true,
   "$defs": {
     "conventionMetadata": {
@@ -41,12 +50,12 @@
       "properties": {
         "schema_url": {
           "type": "string",
-          "pattern": "^https://raw\\.githubusercontent\\.com/R-CF/zarr_convention_geolocation/refs/tags/v1\\.[0-9]+\\.[0-9]+/schema\\.json$",
+          "pattern": "^https://raw\\.githubusercontent\\.com/R-CF/zarr_convention_geolocation/refs/tags/v2\\.[0-9]+\\.[0-9]+/schema\\.json$",
           "description": "URL to the JSON Schema definition for this convention"
         },
         "spec_url": {
           "type": "string",
-          "pattern": "^https://github\\.com/R-CF/zarr_convention_geolocation/blob/v1\\.[0-9]+\\.[0-9]+/README\\.md$",
+          "pattern": "^https://github\\.com/R-CF/zarr_convention_geolocation/blob/v2\\.[0-9]+\\.[0-9]+/README\\.md$",
           "description": "URL to the full specification document"
         },
         "uuid": {
@@ -66,13 +75,19 @@
       },
       "anyOf": [
         {
-          "required": ["schema_url"]
+          "required": [
+            "schema_url"
+          ]
         },
         {
-          "required": ["spec_url"]
+          "required": [
+            "spec_url"
+          ]
         },
         {
-          "required": ["uuid"]
+          "required": [
+            "uuid"
+          ]
         }
       ],
       "additionalProperties": false
@@ -89,10 +104,14 @@
       },
       "anyOf": [
         {
-          "required": ["geodetic"]
+          "required": [
+            "geodetic"
+          ]
         },
         {
-          "required": ["planar"]
+          "required": [
+            "planar"
+          ]
         }
       ],
       "additionalProperties": false
@@ -101,16 +120,73 @@
       "type": "object",
       "properties": {
         "x": {
-          "$ref": "https://raw.githubusercontent.com/R-CF/zarr_convention_ref/refs/tags/v2.0.0/schema.json#/$defs/refProperty"
+          "$ref": "#/$defs/coordinate"
         },
         "y": {
-          "$ref": "https://raw.githubusercontent.com/R-CF/zarr_convention_ref/refs/tags/v2.0.0/schema.json#/$defs/refProperty"
+          "$ref": "#/$defs/coordinate"
         },
         "id": {
           "$ref": "https://raw.githubusercontent.com/zarr-conventions/proj/refs/tags/v0.1/schema.json#/$defs/projAttributes"
         }
       },
-      "required": ["x", "y"],
+      "required": [
+        "x",
+        "y"
+      ],
+      "additionalProperties": false,
+      "anyOf": [
+        {
+          "description": "Boundaries for both x and y",
+          "properties": {
+            "x": {
+              "required": [
+                "boundaries"
+              ]
+            },
+            "y": {
+              "required": [
+                "boundaries"
+              ]
+            }
+          }
+        },
+        {
+          "description": "Boundaries for neither x nor y",
+          "properties": {
+            "x": {
+              "not": {
+                "required": [
+                  "boundaries"
+                ]
+              }
+            },
+            "y": {
+              "not": {
+                "required": [
+                  "boundaries"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    "coordinate": {
+      "type": "object",
+      "description": "The geolocation array and optional boundary array of the x or y coordinates",
+      "properties": {
+        "values": {
+          "$ref": "https://raw.githubusercontent.com/R-CF/zarr_convention_ref/refs/tags/v2.0.0/schema.json#/$defs/refProperty",
+          "description": "Reference to the geolocation array"
+        },
+        "boundaries": {
+          "$ref": "https://raw.githubusercontent.com/R-CF/zarr_convention_ref/refs/tags/v2.0.0/schema.json#/$defs/refProperty",
+          "description": "Reference to the array with the cell vertices"
+        }
+      },
+      "required": [
+        "values"
+      ],
       "additionalProperties": false
     }
   }

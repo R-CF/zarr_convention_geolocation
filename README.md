@@ -2,8 +2,8 @@
 
 - **UUID**: bb9ee930-8c60-4c47-ad6b-8daa558987ed
 - **Name**: geolocation
-- **Schema URL**: "https://raw.githubusercontent.com/R-CF/zarr_convention_geolocation/refs/tags/v1.1.0/schema.json"
-- **Spec URL**: "https://github.com/R-CF/zarr_convention_geolocation/blob/v1.1.0/README.md"
+- **Schema URL**: "https://raw.githubusercontent.com/R-CF/zarr_convention_geolocation/refs/tags/v2.0.0/schema.json"
+- **Spec URL**: "https://github.com/R-CF/zarr_convention_geolocation/blob/v2.0.0/README.md"
 - **Scope**: Array, Group
 - **Extension Maturity Classification**: Pilot
 - **Owner**: @pvanlaake
@@ -38,8 +38,8 @@ The convention must be registered in `zarr_conventions`:
 {
   "zarr_conventions": [
     {
-      "schema_url": "https://raw.githubusercontent.com/R-CF/zarr_convention_geolocation/refs/tags/v1.1.0/schema.json",
-      "spec_url": "https://github.com/R-CF/zarr_convention_geolocation/blob/v1.1.0/README.md",
+      "schema_url": "https://raw.githubusercontent.com/R-CF/zarr_convention_geolocation/refs/tags/v2.0.0/schema.json",
+      "spec_url": "https://github.com/R-CF/zarr_convention_geolocation/blob/v2.0.0/README.md",
       "uuid": "bb9ee930-8c60-4c47-ad6b-8daa558987ed",
       "name": "geolocation",
       "description": "Convention for storing geolocation arrays"
@@ -47,6 +47,16 @@ The convention must be registered in `zarr_conventions`:
   ]
 }
 ```
+
+## Versioning
+
+Releases of this convention use [semantic versioning](https://semver.org/) in the form `MAJOR.MINOR.PATCH`. Each release is tagged in the repository as `vMAJOR.MINOR.PATCH`, and the `schema_url` and `spec_url` of a release include that tag. The `uuid` identifies the convention independently of its version and never changes.
+
+- A `MAJOR` version changes the structure or meaning of the convention such that metadata that is valid under the previous version may be invalid or be interpreted differently.
+- A `MINOR` version adds optional fields or capabilities, or specifies behaviour that the previous version left undefined. Metadata that relied on undefined behaviour may need to be updated to conform to the new minor version.
+- A `PATCH` version clarifies the text or corrects errors in the specification, schema or examples, without changing the requirements of the convention.
+
+Implementations SHOULD accept metadata of any version with the same `MAJOR` version as the version they implement. The schema accepts the `schema_url` and `spec_url` of any release within the same `MAJOR` version.
 
 ## Applicable To
 
@@ -77,25 +87,42 @@ The geolocation object contains references to geodetic and/or planar coordinate 
 | planar     | [Arrays object](#arrays-object) | Object for planar geolocation   | Conditional |
 
 #### geodetic
-This field contains an object holding two geolocation arrays giving geodetic coordinates.
+This field contains an object referencing two geolocation arrays giving geodetic coordinates, and optionally their boundary arrays.
 
 #### planar
-This field contains an object holding two geolocation arrays giving planar coordinates.
+This field contains an object referencing two geolocation arrays giving planar coordinates, and optionally their boundary arrays.
 
 ### Arrays object
 
-| Field Name | Type          | Description                         | Required |
-| ---------- | ------------- | ----------------------------------- | -------- |
-| x          | `ref` object  | Reference to an array of x values   | Yes      |
-| y          | `ref` object  | Reference to an array of y values   | Yes      |
-| id         | proj object   | CRS description of the values       | No       |
+| Field Name | Type                                      | Description                          | Required |
+| ---------- | ----------------------------------------- | ------------------------------------ | -------- |
+| x          | [Coordinate object](#coordinate-object)   | The x coordinates and their boundaries   | Yes  |
+| y          | [Coordinate object](#coordinate-object)   | The y coordinates and their boundaries   | Yes  |
+| id         | proj object                               | CRS description of the values        | No       |
 
 #### x / y
-The `x` and `y` fields are [ref](https://github.com/R-CF/zarr_convention_ref/blob/v2.0.0/README.md) objects, referencing an array providing the X (west-east) axis coordinates and the Y (south-north) axis coordinates, respectively. When the key to the object is `geodetic`, the `x` and `y` arrays represent longitude and latitude values, respectively. For the `planar` case, the values are formally identified by the properties of the `id` field, usually planar `x` and `y` values in a coordinate reference system.
+The `x` and `y` fields are coordinate objects for the X (west-east) axis coordinates and the Y (south-north) axis coordinates, respectively. When the key to the object is `geodetic`, the `x` and `y` coordinates represent longitude and latitude values, respectively. For the `planar` case, the values are formally identified by the properties of the `id` field, usually planar `x` and `y` values in a coordinate reference system.
 
-The geolocation arrays referenced in the `x` and `y` fields MUST have `dimension_names` in their metadata. Geolocation arrays are matched to the referring array (i.e. the array that uses these geolocation arrays to associate coordinates with its elements) by dimension name: the names of the `X` and `Y` dimensions of the referring array, as identified by the principal convention (`spatial:dimensions` for the `spatial` convention, the axes with abbreviation `X` and `Y` for the `cs` convention), MUST both appear in the `dimension_names` of each geolocation array, and the lengths along those dimensions MUST be equal. The order of the dimensions in a geolocation array need not be the same as in the referring array. Additional dimensions in the geolocation arrays are NOT RECOMMENDED; any additional dimension MUST also appear in the `dimension_names` of the referring array, with equal length.
+The `boundaries` field MUST be given for both `x` and `y`, or for neither.
 
-Typically, only the `node` field of the `ref` object will be used for an in-store reference, but the `uri` field may be used to identify an external Zarr store that provides the geolocation array.
+### Coordinate object
+
+| Field Name | Type          | Description                                       | Required |
+| ---------- | ------------- | ------------------------------------------------- | -------- |
+| values     | `ref` object  | Reference to the geolocation array                | Yes      |
+| boundaries | `ref` object  | Reference to the array with the cell vertices     | No       |
+
+Both fields are [ref](https://github.com/R-CF/zarr_convention_ref/blob/v2.0.0/README.md) objects. Unlike the `values` and `boundaries` objects of the `cs` convention, there is no `external` level: geolocation arrays and their boundary arrays are always stored in external Zarr arrays. Typically, only the `node` field of the `ref` object will be used for an in-store reference, but the `uri` field may be used to identify an external Zarr store that provides the array.
+
+Attributes that describe the coordinate values, such as `units`, `standard_name` or `long_name`, are stored as attributes of the referenced arrays themselves; this convention does not define them.
+
+#### values
+The geolocation arrays referenced in the `values` fields of `x` and `y` MUST have `dimension_names` in their metadata. Geolocation arrays are matched to the referring array (i.e. the array that uses these geolocation arrays to associate coordinates with its elements) by dimension name: the names of the `X` and `Y` dimensions of the referring array, as identified by the principal convention (`spatial:dimensions` for the `spatial` convention, the axes with abbreviation `X` and `Y` for the `cs` convention), MUST both appear in the `dimension_names` of each geolocation array, and the lengths along those dimensions MUST be equal. The order of the dimensions in a geolocation array need not be the same as in the referring array. Additional dimensions in the geolocation arrays are NOT RECOMMENDED; any additional dimension MUST also appear in the `dimension_names` of the referring array, with equal length.
+
+#### boundaries
+This convention applies to regular grids, so every cell has four sides and four vertices. The boundary array referenced in the `boundaries` field MUST have the dimensions of the corresponding `values` array, matched by name and with equal lengths, plus exactly one additional dimension of length 4 that runs over the vertices of each cell. The order of the dimensions is free.
+
+The vertices MUST be ordered such that, when visiting them in order, the perimeter of the cell is traversed anticlockwise in the longitude–latitude plane as viewed from above. When the index space of the `X` and `Y` dimensions of the referring array is right-handed relative to longitude–latitude, this is arranged as follows. For the cell at index *i* along `X` and *j* along `Y`, call the side facing the cell at (*i* − 1, *j*) the "*i* − 1" side, and similarly for the other three sides. The four vertices are then the corners between the *j* − 1 and *i* − 1 sides, the *j* − 1 and *i* + 1 sides, the *j* + 1 and *i* + 1 sides, and the *j* + 1 and *i* − 1 sides, in that order. This follows the CF Metadata Conventions, [section 7.1.2](https://cfconventions.org/cf-conventions/cf-conventions.html#bounds-lat-lon), where Figure 7.2 illustrates the ordering.
 
 #### id
 The description of the CRS, encoded using the [`proj` convention](https://github.com/zarr-conventions/proj/blob/v0.1/README.md). This field SHOULD be included if a coordinate reference system identifier describing the data in the geolocation arrays is known.
@@ -105,17 +132,25 @@ The field MUST reference or describe a coordinate reference system that agrees w
 ## Examples
 For brevity, the examples omit the principal convention (`spatial` or `cs`) that identifies the `X` and `Y` dimensions of the array.
 
-**Example 1: Geodetic geolocation arrays in the same group as the array**
+**Example 1: Geodetic geolocation arrays with cell boundaries, in the same group as the array**
 ```json
 {
   "zarr_format": 3,
   "node_type": "array",
-  "shape": [8605, 180, 288],
-  "dimension_names": ["time", "y", "x"],
+  "shape": [
+    8605,
+    180,
+    288
+  ],
+  "dimension_names": [
+    "time",
+    "y",
+    "x"
+  ],
   "attributes": {
     "zarr_conventions": [
       {
-        "schema_url": "https://raw.githubusercontent.com/R-CF/zarr_convention_geolocation/refs/tags/v1.1.0/schema.json",
+        "schema_url": "https://raw.githubusercontent.com/R-CF/zarr_convention_geolocation/refs/tags/v2.0.0/schema.json",
         "name": "geolocation"
       },
       {
@@ -130,13 +165,27 @@ For brevity, the examples omit the principal convention (`spatial` or `cs`) that
     "geolocation": {
       "geodetic": {
         "x": {
-          "ref": {
-            "node": "../longitude"
+          "values": {
+            "ref": {
+              "node": "../longitude"
+            }
+          },
+          "boundaries": {
+            "ref": {
+              "node": "../longitude_bnds"
+            }
           }
         },
         "y": {
-          "ref": {
-            "node": "../latitude"
+          "values": {
+            "ref": {
+              "node": "../latitude"
+            }
+          },
+          "boundaries": {
+            "ref": {
+              "node": "../latitude_bnds"
+            }
           }
         },
         "id": {
@@ -152,12 +201,20 @@ For brevity, the examples omit the principal convention (`spatial` or `cs`) that
 {
   "zarr_format": 3,
   "node_type": "array",
-  "shape": [8605, 180, 288],
-  "dimension_names": ["time", "y", "x"],
+  "shape": [
+    8605,
+    180,
+    288
+  ],
+  "dimension_names": [
+    "time",
+    "y",
+    "x"
+  ],
   "attributes": {
     "zarr_conventions": [
       {
-        "schema_url": "https://raw.githubusercontent.com/R-CF/zarr_convention_geolocation/refs/tags/v1.1.0/schema.json",
+        "schema_url": "https://raw.githubusercontent.com/R-CF/zarr_convention_geolocation/refs/tags/v2.0.0/schema.json",
         "name": "geolocation"
       },
       {
@@ -172,13 +229,17 @@ For brevity, the examples omit the principal convention (`spatial` or `cs`) that
     "geolocation": {
       "geodetic": {
         "x": {
-          "ref": {
-            "node": "../../geolocation/geodetic/longitude"
+          "values": {
+            "ref": {
+              "node": "../../geolocation/geodetic/longitude"
+            }
           }
         },
         "y": {
-          "ref": {
-            "node": "../../geolocation/geodetic/latitude"
+          "values": {
+            "ref": {
+              "node": "../../geolocation/geodetic/latitude"
+            }
           }
         },
         "id": {
@@ -187,13 +248,17 @@ For brevity, the examples omit the principal convention (`spatial` or `cs`) that
       },
       "planar": {
         "x": {
-          "ref": {
-            "node": "../../geolocation/UTM28N/easting"
+          "values": {
+            "ref": {
+              "node": "../../geolocation/UTM28N/easting"
+            }
           }
         },
         "y": {
-          "ref": {
-            "node": "../../geolocation/UTM28N/northing"
+          "values": {
+            "ref": {
+              "node": "../../geolocation/UTM28N/northing"
+            }
           }
         },
         "id": {

@@ -1,12 +1,20 @@
 {
   "zarr_format": 3,
   "node_type": "array",
-  "shape": [8605, 180, 288],
-  "dimension_names": ["time", "y", "x"],
+  "shape": [
+    8605,
+    180,
+    288
+  ],
+  "dimension_names": [
+    "time",
+    "y",
+    "x"
+  ],
   "attributes": {
     "zarr_conventions": [
       {
-        "schema_url": "https://raw.githubusercontent.com/R-CF/zarr_convention_geolocation/refs/tags/v1.1.0/schema.json",
+        "schema_url": "https://raw.githubusercontent.com/R-CF/zarr_convention_geolocation/refs/tags/v2.0.0/schema.json",
         "name": "geolocation"
       },
       {
@@ -21,13 +29,17 @@
     "geolocation": {
       "geodetic": {
         "x": {
-          "ref": {
-            "node": "../../geolocation/geodetic/longitude"
+          "values": {
+            "ref": {
+              "node": "../../geolocation/geodetic/longitude"
+            }
           }
         },
         "y": {
-          "ref": {
-            "node": "../../geolocation/geodetic/latitude"
+          "values": {
+            "ref": {
+              "node": "../../geolocation/geodetic/latitude"
+            }
           }
         },
         "id": {
@@ -36,13 +48,17 @@
       },
       "planar": {
         "x": {
-          "ref": {
-            "node": "../../geolocation/UTM28N/easting"
+          "values": {
+            "ref": {
+              "node": "../../geolocation/UTM28N/easting"
+            }
           }
         },
         "y": {
-          "ref": {
-            "node": "../../geolocation/UTM28N/northing"
+          "values": {
+            "ref": {
+              "node": "../../geolocation/UTM28N/northing"
+            }
           }
         },
         "id": {
